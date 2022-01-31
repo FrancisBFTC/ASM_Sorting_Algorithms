@@ -8,10 +8,73 @@
 ; estes passos até que reste um único elemento. Para todos os casos (melhor, médio e pior caso) 
 ; possui complexidade C(n) = O(n²) e não é um algoritmo estável.
 
+; MACRO EQUIVALENTE A:
+;#define SSWAP(A, B) aux = A; A = B; B = aux;
+;
+%DEFINE SWAP(A,B) S_SWAP A,B
+
+%MACRO S_SWAP 2 
+	mov 	ebx, dword[%1]
+	shl 	ebx, 2
+	push 	ebx
+	mov 	eax, dword[esi + ebx]
+	mov 	ebx, dword[%2]
+	shl 	ebx, 2
+	mov 	edx, dword[esi + ebx]
+	mov 	dword[esi + ebx], eax
+	pop 	ebx
+	mov 	dword[esi + ebx], edx
+%ENDMACRO
+
+minor dd 0
 
 SelectionSort:
-
-
+	pushad
+	mov 	dword[i], 0
+	mov 	dword[j], 0
+	mov 	dword[minor], 0
+	init_for1_Sel:
+		mov 	ebx, dword[i]
+		push 	ecx
+		sub 	ecx, 1
+		cmp 	ebx, ecx
+		jb 		loop_for1_Sel
+		pop 	ecx
+		jmp 	return_Sel
+	loop_for1_Sel:
+		pop 	ecx
+		mov 	dword[minor], ebx
+	init_for2_Sel:
+		mov 	dword[j], ebx
+		add 	dword[j], 1
+	loop_for2_Sel:
+		cmp 	dword[j], ecx
+		jb 		loop_for2_Sel1
+		jmp 	return_for1_Sel
+	loop_for2_Sel1:
+		shl 	ebx, 2
+		mov 	eax, dword[esi + ebx]
+		mov 	ebx, dword[j]
+		shl 	ebx, 2
+		mov 	edx, dword[esi + ebx]
+		cmp 	edx, eax
+		jb 		select_minor
+		jmp 	return_for2_Sel
+	return_for1_Sel:
+		SWAP 	(minor, i)
+		inc 	dword[i]
+		cmp 	ecx, 0
+		jnz 	init_for1_Sel
+	return_for2_Sel:
+		inc 	dword[j]
+		mov 	ebx, dword[minor]
+		jmp 	loop_for2_Sel
+	select_minor:
+		mov 	ebx, dword[j]
+		mov 	dword[minor], ebx
+		jmp 	return_for2_Sel
+return_Sel:
+	popad
 ret
 
 ; EQUIVALENTE LINGUAGEM C
