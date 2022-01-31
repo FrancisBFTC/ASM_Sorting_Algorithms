@@ -1,5 +1,5 @@
 ; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-; FUNÇÕES DE ORDENAÇÃO
+; FUNÇÕES DE ORDENAÇÃO EM SISTEMA BOOTÁVEL
 
 ; Ordenação por Inserção
 ;
@@ -12,9 +12,43 @@
 ; o próximo item da sequência e colocá-lo no local apropriado de acordo com o critério de ordenação.
 
 
+Vector 	dd 	8, 5, 9, 1, 3, 2, 0, 4, 7, 6    ; Vetor de Exemplo
+i dd 1
+j dd 0
+x dd 0
+
+; IN:  ECX = Tamanho do Vetor
+;      ESI = Endereço do Vetor
+;
+; OUT: Nenhum.
 InsertionSort:
-
-
+	pushad
+	loop_for:
+		mov 	ebx, dword[i]
+		shl 	ebx, 2
+		mov 	eax, dword[esi + ebx]
+		mov 	dword[x], eax
+		mov 	ebx, dword[i]
+		dec 	ebx
+		mov 	dword[j], ebx
+		mov 	dword[esi-4], eax
+	init_while:
+		mov 	ebx, dword[j]
+		shl 	ebx, 2
+		mov 	eax, dword[esi + ebx]
+		cmp 	dword[x], eax
+		jb 		loop_while
+		jmp 	return_for
+	loop_while:
+		mov 	dword[esi+ebx+4], eax
+		dec 	dword[j]		
+		jmp 	init_while
+	return_for:
+		mov 	eax, dword[x]
+		mov 	dword[esi+ebx+4], eax
+		inc 	dword[i]
+		loop 	loop_for
+	popad
 ret
 
 ; EQUIVALENTE LINGUAGEM C
