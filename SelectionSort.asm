@@ -10,7 +10,8 @@
 
 ; MACRO EQUIVALENTE A:
 ;#define SSWAP(A, B) aux = A; A = B; B = aux;
-;
+;;
+
 %DEFINE SWAP(A,B) S_SWAP A,B                 ; Pré-definição da Macro S_SWAP
 
 ; --------------------------------------------------------------------------------------
