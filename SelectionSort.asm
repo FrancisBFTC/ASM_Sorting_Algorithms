@@ -49,9 +49,9 @@ SelectionSort:                             ; Label que será chamada pela Instru
 		push 	ecx                        ; Salve o tamanho do vetor (ecx) na pilha...
 		sub 	ecx, 1                     ; Porque subtraímos ecx - 1 aqui.
 		cmp 	ebx, ecx                   ; Compare o índice i com tamanho - 1 (ecx - 1)
-		jb 		loop_for1_Sel              ; Se for menor, Então começe a iteração do loop FOR
+		jb      loop_for1_Sel              ; Se for menor, Então começe a iteração do loop FOR
 		pop 	ecx                        ; Se não, desempilhe ecx e...
-		jmp 	return_Sel                 ; Saia da rotina e retorne para a CALL
+		jmp     return_Sel                 ; Saia da rotina e retorne para a CALL
 	loop_for1_Sel:                         ; Sendo menor, a execução vem pra cá (Pré-início do 2ª loop)
 		pop 	ecx                        ; Desempilhe ecx
 		mov 	dword[minor], ebx          ; Salve o índice i (ebx) em minor (variável de seleção do menor)
@@ -60,8 +60,8 @@ SelectionSort:                             ; Label que será chamada pela Instru
 		add 	dword[j], 1                ; Some j + 1, que com a instrução anterior ficaria: j = i + 1
 	loop_for2_Sel:                         ; Label para comparação no 2ª loop FOR
 		cmp 	dword[j], ecx              ; Compare índice j com o tamanho do vetor (ecx)
-		jb 		loop_for2_Sel1             ; Se for menor, Salte para a execução dentro do 2ª loop FOR
-		jmp 	return_for1_Sel            ; Se não for, Então vai para o retorno do 1ª loop FOR
+		jb      loop_for2_Sel1             ; Se for menor, Salte para a execução dentro do 2ª loop FOR
+		jmp     return_for1_Sel            ; Se não for, Então vai para o retorno do 1ª loop FOR
 	loop_for2_Sel1:                        ; Label para execução no 2ª loop FOR
 		shl 	ebx, 2                     ; Multiplique o índice i por 4 (Porque 1 inteiro é 4 bytes)
 		mov 	eax, dword[esi + ebx]      ; Acesse o índice i no vetor e mova para eax, sendo Vector[i]
@@ -69,20 +69,20 @@ SelectionSort:                             ; Label que será chamada pela Instru
 		shl 	ebx, 2                     ; Multiplique este índice j por 4
 		mov 	edx, dword[esi + ebx]      ; Acesse o índice j no vetor e mova para edx, sendo Vector[j]
 		cmp 	edx, eax                   ; Compare Vector[j] com Vector[minor], onde minor = i
-		jb 		select_minor               ; Se for menor, Salte para a atribuição de minor = j (Seleção do menor valor)
-		jmp 	return_for2_Sel            ; Se não for, então vai para o retorno do 2ª loop FOR
+		jb      select_minor               ; Se for menor, Salte para a atribuição de minor = j (Seleção do menor valor)
+		jmp     return_for2_Sel            ; Se não for, então vai para o retorno do 2ª loop FOR
 	return_for1_Sel:                       ; Retorno do 1ª loop FOR com procedimentos
 		SWAP 	(minor, i)                 ; Faça uma troca de valores entre Vector[minor] e Vector[i]
 		inc 	dword[i]                   ; Incremente o índice i
-		jmp 	init_for1_Sel              ; Volte para o início do 1ª loop FOR
+		jmp     init_for1_Sel              ; Volte para o início do 1ª loop FOR
 	return_for2_Sel:                       ; Retorno para o 2ª loop FOR
 		inc 	dword[j]                   ; Incremente o índice j
 		mov 	ebx, dword[minor]          ; Ebx fica com o índice de "menor" valor pois será usado na condicional do 2ª loop
-		jmp 	loop_for2_Sel              ; Volte para o 2ª loop
+		jmp     loop_for2_Sel              ; Volte para o 2ª loop
 	select_minor:                          ; Label de Seleção do menor valor -> Atribuição de minor = j
 		mov 	ebx, dword[j]              ; Ebx recebe o índice j
 		mov 	dword[minor], ebx          ; Minor recebe o índice de ebx (j)
-		jmp 	return_for2_Sel            ; Vá para o retorno do 2ª loop FOR
+		jmp     return_for2_Sel            ; Vá para o retorno do 2ª loop FOR
 return_Sel:                                ; Label de retorno da rotina de seleção (Vindo do ínicio do 1ª Loop)
 	popad                                  ; Restaure todos os registradores da pilha, armazenados em "pushad"
 ret                                        ; Retorno para a chamada pela Instrução CALL e dados ordenados!
