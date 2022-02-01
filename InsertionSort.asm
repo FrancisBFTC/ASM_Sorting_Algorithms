@@ -42,18 +42,18 @@ InsertionSort:                             ; Label que será chamada por instru�
 		shl 	ebx, 2                     ; Multiplique rápidamente ebx por 4 (4 bytes = 32 bits)
 		mov 	eax, dword[esi + ebx]      ; Acesse o índice j no Vetor através de esi + ebx ou Vector[j], mova para eax 
 		cmp 	dword[x], eax              ; Compare x com o conteúdo de Vector[j] (eax)
-		jb 		return_while_Ins           ; Se for menor, salte para o retorno do loop WHILE
-		jmp 	return_for_Ins             ; Se não for, então salte para o retorno do loop FOR
+		jb      return_while_Ins           ; Se for menor, salte para o retorno do loop WHILE
+		jmp     return_for_Ins             ; Se não for, então salte para o retorno do loop FOR
 	return_while_Ins:                      ; Retorno do loop WHILE com procedimentos
 		mov 	dword[esi+ebx+4], eax      ; Mova o conteudo de Vector[j] para Vector[j+1] -> esi+ebx+4 (4 bytes = 1 int)
 		dec 	dword[j]                   ; Decremente j, obs.: Se j for -1, em Asm ele sera 0xFFFFFFFF
-		jmp 	loop_while_Ins             ; Volte para o inicio do loop WHILE para comparação
+		jmp     loop_while_Ins             ; Volte para o inicio do loop WHILE para comparação
 	return_for_Ins:                        ; Retorno do loop FOR com procedimentos
 		mov 	eax, dword[x]              ; Mova o valor de x para eax
 		mov 	dword[esi+ebx+4], eax      ; Mova x para Vector[j+1]
 		inc 	dword[i]                   ; Incremente o índice i
 		cmp 	dword[i], ecx              ; Compare índice i com o tamanho do vetor em ecx
-		jbe 	loop_for_Ins               ; Se for menor ou igual, Volte para o laço externo FOR
+		jbe     loop_for_Ins               ; Se for menor ou igual, Volte para o laço externo FOR
 	popad                                  ; Restaure todos os registradores da pilha
 ret                                        ; Retorne para a chamada da instrução CALL
 ; --------------------------------------------------------------------------------------------------------------------------
