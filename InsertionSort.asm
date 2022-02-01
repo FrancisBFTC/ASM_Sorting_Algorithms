@@ -10,7 +10,7 @@
 ; Um método de ordenação é estável se a ordem relativa dos itens iguais não se altera durante a ordenação. 
 ; O funcionamento do algoritmo é bem simples: consiste em cada passo a partir do segundo elemento selecionar 
 ; o próximo item da sequência e colocá-lo no local apropriado de acordo com o critério de ordenação.
-
+;
 
 i dd 1
 j dd 0
