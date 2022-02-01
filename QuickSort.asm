@@ -43,30 +43,30 @@ QuickSort:
 			shl 	ebx, 2                  ; Multiplique o índice por 4
 			mov 	ebx, dword[esi + ebx]   ; Substitua ebx por Vector[i]
 			cmp 	ebx, edx                ; Compare Vector[i] com pivo -> edx colocado antes do loop_while1
-			jb 		second_cond1.1          ; Se atender a 1ª condição (Se for menor), vai para 2ª condição
-			jmp 	loop_while1.2           ; Se não atender (Não ser menor), então inicie o 2ª while interno
+			jb      second_cond1.1          ; Se atender a 1ª condição (Se for menor), vai para 2ª condição
+			jmp     loop_while1.2           ; Se não atender (Não ser menor), então inicie o 2ª while interno
 		second_cond1.1:                     ; Label da 2ª condição do 1ª while interno
 			cmp 	dword[i], ecx           ; Compare índice i com END (Índice Final)
-			jb 		return_while1.1         ; Se for menor, Vai para o retorno do 1ª while interno para incrementar i
-			jmp 	loop_while1.2           ; Se não for menor, inicie o 2ª while interno
+			jb      return_while1.1         ; Se for menor, Vai para o retorno do 1ª while interno para incrementar i
+			jmp     loop_while1.2           ; Se não for menor, inicie o 2ª while interno
 		return_while1.1:                    ; Label de retorno do 1ª while interno com incremento de i
 			inc 	dword[i]                ; Incremente o índice i
-			jmp 	loop_while1.1           ; Retorne para o 1ª while interno
+			jmp     loop_while1.1           ; Retorne para o 1ª while interno
 	loop_while1.2:                          ; Label Identificadora do 2ª while interno
 		first_cond1.2:                      ; Label da 1ª condição do 2ª while interno
 			mov 	ebx, dword[j]           ; Mova o índice j para ebx
 			shl 	ebx, 2                  ; Multiplique o índice por 4
 			mov 	ebx, dword[esi + ebx]   ; Substitua ebx por Vector[j]
 			cmp 	ebx, edx                ; Compare Vector[j] com pivo -> edx colocado antes do loop_while1
-			ja 		second_cond1.2          ; Se atender a 1ª condição (Se for MAIOR), vai para 2ª condição
-			jmp 	first_cond_while1       ; Se não atender (Não ser MAIOR), Execute a 1ª condição	do while externo		
+			ja      second_cond1.2          ; Se atender a 1ª condição (Se for MAIOR), vai para 2ª condição
+			jmp     first_cond_while1       ; Se não atender (Não ser MAIOR), Execute a 1ª condição	do while externo		
 		second_cond1.2:                     ; Label da 2ª condição do 1ª while interno
 			cmp 	dword[j], eax           ; Compare índice j com BEGIN (Índice Inicial)
 			ja      return_while1.2         ; Se for maior, Vai pare o retorno do 2ª while interno para decrementar j
-			jmp 	first_cond_while1       ; Se não for maior, inicie a 1ª condição do while externo
+			jmp     first_cond_while1       ; Se não for maior, inicie a 1ª condição do while externo
 		return_while1.2:                    ; Label de retorno do 2ª while interno com decremento de j
 			dec 	dword[j]                ; Decremente o índice j
-			jmp 	loop_while1.2           ; Retorne para o 2ª while interno
+			jmp     loop_while1.2           ; Retorne para o 2ª while interno
 			
 	first_cond_while1:
 		mov 	ebx, dword[j]           ; Mova índice j para ebx
@@ -78,19 +78,19 @@ QuickSort:
 		pop 	eax                     ; Restaure eax da pilha para usá-lo em breve
 		inc 	dword[i]                ; Incremente i
 		dec 	dword[j]                ; Decremente j
-		jmp 	loop_while1             ; Retorne para o loop while externo
+		jmp     loop_while1             ; Retorne para o loop while externo
 		
 	end_while1:                         ; Label para fim do while externo
 		cond1_tocall:                   ; Label da 1ª condição fora do while para chamada recursiva
 			cmp 	dword[j], eax       ; Compare índice j com BEGIN
-			jna 	cond2_tocall        ; Se não for maior, vai para 2ª condição
-			call 	QuickSort           ; Chamada recursiva com os argumentos: BEGIN = EAX e END = ECX
+			jna     cond2_tocall        ; Se não for maior, vai para 2ª condição
+			call    QuickSort           ; Chamada recursiva com os argumentos: BEGIN = EAX e END = ECX
 		cond2_tocall:                   ; Label da 2ª condição fora do while para chamada recursiva
 			cmp 	dword[i], ecx       ; Compare índice í com END
-			jnb 	return_quick        ; Se não for menor, saia da rotina e retorne a chamada
+			jnb     return_quick        ; Se não for menor, saia da rotina e retorne a chamada
 			mov 	eax, DWORD[i]       ; Mova o novo valor de i para eax pois eax deve ser atualizado como argumento
 			add 	ecx, 1              ; Some END + 1 (ecx + 1)
-			call 	QuickSort           ; Chamada recursiva com os argumentos: BEGIN = i e END = ECX+1
+			call    QuickSort           ; Chamada recursiva com os argumentos: BEGIN = i e END = ECX+1
 return_quick:                           ; Retorna a chamada pro seu respectivo endereço "seja qual for"
 	pop 	dword[j]                    ; Restaure j da pilha
 	pop 	dword[i]                    ; Restaure i da pilha
