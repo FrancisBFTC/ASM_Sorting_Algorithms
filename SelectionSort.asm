@@ -1,5 +1,5 @@
 ; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-; FUNÇÕES DE ORDENAÇÃO
+; FUNÇÕES DE ORDENAÇÃO EM SISTEMA BOOTÁVEL
 
 ; Ordenação por Seleção
 ;
@@ -11,71 +11,83 @@
 ; MACRO EQUIVALENTE A:
 ;#define SSWAP(A, B) aux = A; A = B; B = aux;
 ;
-%DEFINE SWAP(A,B) S_SWAP A,B
+%DEFINE SWAP(A,B) S_SWAP A,B                 ; Pré-definição da Macro S_SWAP
 
-%MACRO S_SWAP 2 
-	mov 	ebx, dword[%1]
-	shl 	ebx, 2
-	push 	ebx
-	mov 	eax, dword[esi + ebx]
-	mov 	ebx, dword[%2]
-	shl 	ebx, 2
-	mov 	edx, dword[esi + ebx]
-	mov 	dword[esi + ebx], eax
-	pop 	ebx
-	mov 	dword[esi + ebx], edx
-%ENDMACRO
+; --------------------------------------------------------------------------------------
+; Esta é uma macro para troca de valores em um Vetor
+; Dado 2 argumentos, os valores se trocam nas posições
+%MACRO S_SWAP 2                              ; Macro S_SWAP com 2 Argumentos
+	mov 	ebx, dword[%1]                   ; Mova para ebx o 1ª índice (1ª Argumento)
+	shl 	ebx, 2                           ; Multiplique rapidamente o 1ª índice por 4
+	push 	ebx                              ; Salve ebx na pilha por causa das alterações
+	mov 	eax, dword[esi + ebx]            ; Salve em eax o conteúdo do 1ª índice do Vetor
+	mov 	ebx, dword[%2]                   ; Mova para ebx o 2ª índice (2ª Argumento)
+	shl 	ebx, 2                           ; Multiplique rapidamente o 2ª índice por 4
+	mov 	edx, dword[esi + ebx]            ; Salve em edx o conteúdo do 2ª índice do Vetor
+	mov 	dword[esi + ebx], eax            ; O conteúdo do 1ª índice do Vetor vai para o 2ª índice
+	pop 	ebx                              ; Restaure ebx (1ª índice)
+	mov 	dword[esi + ebx], edx            ; O conteúdo do 2ª índice vai para o 1ª índice
+%ENDMACRO                                    ; Fim da Macro e trocas realizadas.
+; --------------------------------------------------------------------------------------
 
-minor dd 0
 
-SelectionSort:
-	pushad
-	mov 	dword[i], 0
-	mov 	dword[j], 0
-	mov 	dword[minor], 0
-	init_for1_Sel:
-		mov 	ebx, dword[i]
-		push 	ecx
-		sub 	ecx, 1
-		cmp 	ebx, ecx
-		jb 		loop_for1_Sel
-		pop 	ecx
-		jmp 	return_Sel
-	loop_for1_Sel:
-		pop 	ecx
-		mov 	dword[minor], ebx
-	init_for2_Sel:
-		mov 	dword[j], ebx
-		add 	dword[j], 1
-	loop_for2_Sel:
-		cmp 	dword[j], ecx
-		jb 		loop_for2_Sel1
-		jmp 	return_for1_Sel
-	loop_for2_Sel1:
-		shl 	ebx, 2
-		mov 	eax, dword[esi + ebx]
-		mov 	ebx, dword[j]
-		shl 	ebx, 2
-		mov 	edx, dword[esi + ebx]
-		cmp 	edx, eax
-		jb 		select_minor
-		jmp 	return_for2_Sel
-	return_for1_Sel:
-		SWAP 	(minor, i)
-		inc 	dword[i]
-		cmp 	ecx, 0
-		jnz 	init_for1_Sel
-	return_for2_Sel:
-		inc 	dword[j]
-		mov 	ebx, dword[minor]
-		jmp 	loop_for2_Sel
-	select_minor:
-		mov 	ebx, dword[j]
-		mov 	dword[minor], ebx
-		jmp 	return_for2_Sel
-return_Sel:
-	popad
-ret
+minor dd 0                                ; Variável para seleção do índice onde estará o "menor" valor
+
+; --------------------------------------------------------------------------------------------------------------------------
+; ARGUMENTOS DA ROTINA SELECTIONSORT ---------------------------------------------------------------------------------------
+; IN:  ECX = Tamanho do Vetor
+;      ESI = Endereço do Vetor
+;
+; OUT: Nenhum.
+SelectionSort:                             ; Label que será chamada pela Instrução CALL
+	pushad                                 ; Armazene todos os registradores na pilha
+	mov 	dword[i], 0                    ; Inicialize a variável de índice i
+	mov 	dword[j], 0                    ; Inicialize a variável de índice j
+	mov 	dword[minor], 0                ; Inicialize a variável de seleção minor
+	init_for1_Sel:                         ; Inicio do 1ª loop FOR (Laço Externo)
+		mov 	ebx, dword[i]              ; Mova para ebx o índice i
+		push 	ecx                        ; Salve o tamanho do vetor (ecx) na pilha...
+		sub 	ecx, 1                     ; Porque subtraímos ecx - 1 aqui.
+		cmp 	ebx, ecx                   ; Compare o índice i com tamanho - 1 (ecx - 1)
+		jb 		loop_for1_Sel              ; Se for menor, Então começe a iteração do loop FOR
+		pop 	ecx                        ; Se não, desempilhe ecx e...
+		jmp 	return_Sel                 ; Saia da rotina e retorne para a CALL
+	loop_for1_Sel:                         ; Sendo menor, a execução vem pra cá (Pré-início do 2ª loop)
+		pop 	ecx                        ; Desempilhe ecx
+		mov 	dword[minor], ebx          ; Salve o índice i (ebx) em minor (variável de seleção do menor)
+	init_for2_Sel:                         ; Início do 2ª loop FOR (Laço Interno)
+		mov 	dword[j], ebx              ; Mova o índice i para j
+		add 	dword[j], 1                ; Some j + 1, que com a instrução anterior ficaria: j = i + 1
+	loop_for2_Sel:                         ; Label para comparação no 2ª loop FOR
+		cmp 	dword[j], ecx              ; Compare índice j com o tamanho do vetor (ecx)
+		jb 		loop_for2_Sel1             ; Se for menor, Salte para a execução dentro do 2ª loop FOR
+		jmp 	return_for1_Sel            ; Se não for, Então vai para o retorno do 1ª loop FOR
+	loop_for2_Sel1:                        ; Label para execução no 2ª loop FOR
+		shl 	ebx, 2                     ; Multiplique o índice i por 4 (Porque 1 inteiro é 4 bytes)
+		mov 	eax, dword[esi + ebx]      ; Acesse o índice i no vetor e mova para eax, sendo Vector[i]
+		mov 	ebx, dword[j]              ; Substitua ebx com outro índice -> o índice j
+		shl 	ebx, 2                     ; Multiplique este índice j por 4
+		mov 	edx, dword[esi + ebx]      ; Acesse o índice j no vetor e mova para edx, sendo Vector[j]
+		cmp 	edx, eax                   ; Compare Vector[j] com Vector[minor], onde minor = i
+		jb 		select_minor               ; Se for menor, Salte para a atribuição de minor = j (Seleção do menor valor)
+		jmp 	return_for2_Sel            ; Se não for, então vai para o retorno do 2ª loop FOR
+	return_for1_Sel:                       ; Retorno do 1ª loop FOR com procedimentos
+		SWAP 	(minor, i)                 ; Faça uma troca de valores entre Vector[minor] e Vector[i]
+		inc 	dword[i]                   ; Incremente o índice i
+		jmp 	init_for1_Sel              ; Volte para o início do 1ª loop FOR
+	return_for2_Sel:                       ; Retorno para o 2ª loop FOR
+		inc 	dword[j]                   ; Incremente o índice j
+		mov 	ebx, dword[minor]          ; Ebx fica com o índice de "menor" valor pois será usado na condicional do 2ª loop
+		jmp 	loop_for2_Sel              ; Volte para o 2ª loop
+	select_minor:                          ; Label de Seleção do menor valor -> Atribuição de minor = j
+		mov 	ebx, dword[j]              ; Ebx recebe o índice j
+		mov 	dword[minor], ebx          ; Minor recebe o índice de ebx (j)
+		jmp 	return_for2_Sel            ; Vá para o retorno do 2ª loop FOR
+return_Sel:                                ; Label de retorno da rotina de seleção (Vindo do ínicio do 1ª Loop)
+	popad                                  ; Restaure todos os registradores da pilha, armazenados em "pushad"
+ret                                        ; Retorno para a chamada pela Instrução CALL e dados ordenados!
+; --------------------------------------------------------------------------------------------------------------------------
+
 
 ; EQUIVALENTE LINGUAGEM C
 ;#define SSWAP(A, B) aux = A; A = B; B = aux;
