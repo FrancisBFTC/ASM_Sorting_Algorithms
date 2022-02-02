@@ -1,5 +1,5 @@
-; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-; FUNÇÕES DE ORDENAÇÃO EM SISTEMA BOOTÁVEL
+; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+; ***** FUNÇOES DE ORDENAÇÃO EM SISTEMA BOOTÁVEL *****
 
 ; Ordenação por Inserção
 ;
@@ -10,11 +10,10 @@
 ; Um método de ordenação é estável se a ordem relativa dos itens iguais não se altera durante a ordenação. 
 ; O funcionamento do algoritmo é bem simples: consiste em cada passo a partir do segundo elemento selecionar 
 ; o próximo item da sequência e colocá-lo no local apropriado de acordo com o critério de ordenação.
-;;
 
-i dd 1
-j dd 0
-x dd 0
+; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+%INCLUDE "vars.asm"
 
 ; --------------------------------------------------------------------------------------------------------------------------
 ; ARGUMENTOS DA ROTINA INSERTIONSORT ---------------------------------------------------------------------------------------
@@ -22,6 +21,7 @@ x dd 0
 ;      ESI = Endereço do Vetor
 ;
 ; OUT: Nenhum.
+; --------------------------------------------------------------------------------------------------------------------------
 InsertionSort:                             ; Label que será chamada por instrução CALL
 	pushad                                 ; Armazene todos os registradores na pilha
 	mov 	dword[i], 1                    ; Inicializa a variável i com 1
@@ -75,5 +75,5 @@ ret                                        ; Retorne para a chamada da instruç�
 ;}
 
 
-; ***** FIM DAS FUNÇOES DE ORDENAÇÃO ***** */
-; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+; ***** FIM DAS FUNÇOES DE ORDENAÇÃO *****
+; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
