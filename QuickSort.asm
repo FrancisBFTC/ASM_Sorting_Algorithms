@@ -1,5 +1,5 @@
-; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-; ***** FUNÇOES DE ORDENAÇÃO *****
+; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+; ***** FUNÇOES DE ORDENAÇÃO EM SISTEMA BOOTÁVEL *****
 
 ; Ordenação por QUICKSORT
 ;
@@ -12,12 +12,19 @@
 ; consiste em rearranjar as chaves de modo que as chaves "menores" precedam as chaves "maiores". Em seguida o quicksort ordena as duas sublistas 
 ; de chaves menores e maiores recursivamente até que a lista completa se encontre ordenada.
 
-pivo	dd 0
-aux		dd 0
+; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-; EAX = BEGIN -> Índice Inicial
-; ECX = END   -> Índice Final
-; ESI = Endereço do Vetor
+%INCLUDE "vars.asm"
+
+; --------------------------------------------------------------------------------------------------------------------------
+; ARGUMENTOS DA ROTINA QUICKSORT -------------------------------------------------------------------------------------------
+
+; IN: EAX = BEGIN -> Índice Inicial
+;     ECX = END   -> Índice Final
+;     ESI = Endereço do Vetor
+;
+; OUT: Nenhum.
+; --------------------------------------------------------------------------------------------------------------------------
 QuickSort:
 	pushad                              ; Armazene todos os registradores na pilha
 	push 	dword[i]                    ; Armazene i na pilha para recursividade
@@ -97,6 +104,10 @@ return_quick:                           ; Retorna a chamada pro seu respectivo e
 	popad                               ; Restaure todos os registradores da pilha
 ret                                     ; Retorne a instrução CALL da chamada atual até a 1ª CALL
 
+; --------------------------------------------------------------------------------------------------------------------------
+
+; ALGORITMO ACIMA EQUIVALENTE A:
+
 ;void QuickSort (int vet[], int begin, int end){
 ;	int i, j, pivo, aux;                            // Declara as 4 variáveis necessárias
 ;	i = begin;                                      // Armazena em i o índice inicial
@@ -126,4 +137,4 @@ ret                                     ; Retorne a instrução CALL da chamada 
 
 
 ; ***** FIM DAS FUNÇOES DE ORDENAÇÃO *****
-; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
