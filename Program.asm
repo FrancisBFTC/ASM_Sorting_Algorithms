@@ -175,7 +175,7 @@ ret
 
 ; ==============================================================
 ; Rotina que imprime inteiros decimais de 32 bits
-; IN: EAX = Endereço da String
+; IN: EAX = Número a ser imprimido
 
 ; OUT: Nenhum.
 ; ==============================================================
