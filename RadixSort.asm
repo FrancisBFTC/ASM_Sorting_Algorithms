@@ -13,7 +13,12 @@
 
 ; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-%INCLUDE "vars.asm"
+%INCLUDE "Library/Sort/vars.asm"
+
+b 		dd 0x00000000    ; Ponteiro para vetor
+major 	dd 0
+exp 	dd 1
+bucket 	times 10 dd 0
 
 ; --------------------------------------------------------------------------------------------------------------------------
 ; ARGUMENTOS DA ROTINA RADIXSORT -------------------------------------------------------------------------------------------
@@ -25,7 +30,135 @@
 RadixSort:                                 ; Label que será chamada por instrução CALL
 	pushad                                 ; Armazene todos os registradores na pilha
 	
-	;TODO fazer o algoritmo em Assembly
+	mov 	dword[i], 0
+	mov 	eax, dword[esi + 0]
+	mov 	dword[major], eax
+	mov 	dword[exp], 1
+	
+	mov 	ebx, 4
+	call 	Calloc
+	mov 	dword[b], eax
+	
+	; Primeiro FOR
+	push 	ecx
+	loop_for_rad1:
+		mov 	ebx, dword[i]
+		shl 	ebx, 2
+		mov 	ebx, dword[esi + ebx]
+		cmp 	ebx, dword[major]
+		jbe 	return_loopfor_rad1
+		mov 	dword[major], ebx
+	return_loopfor_rad1:
+		inc 	dword[i]
+		loop 	loop_for_rad1
+	pop 	ecx
+	
+	; Loop while principal externo
+	loop_while_rad1:
+		xor 	edx, edx
+		mov 	eax, dword[major]
+		mov 	ebx, dword[exp]
+		div 	ebx
+		cmp 	eax, 0
+		jbe 	ReturnRadix
+		
+	; Inicializa vetor bucket (talvez apague)
+		push 	ecx
+		mov 	ecx, 10
+		xor 	ebx, ebx
+	Init_Bucket:
+		mov 	dword[bucket + ebx], 0
+		inc 	ebx
+		loop 	Init_Bucket
+		pop 	ecx
+		
+	; 1ª loop for
+		mov 	dword[i], 0
+		push 	ecx
+	loop_rad1:
+		mov 	ebx, dword[i]
+		shl 	ebx, 2
+		mov 	eax, dword[esi + ebx]
+		div 	dword[exp]
+		xor 	edx, edx
+		mov 	ebx, 10
+		div 	ebx
+		mov 	ebx, edx
+		shl 	ebx, 2
+		inc 	dword[bucket + ebx]
+		inc 	dword[i]
+		loop 	loop_rad1
+		pop 	ecx
+		
+	; 2ª loop for
+		mov 	dword[i], 1
+		push 	ecx
+		mov 	ecx, 10
+	loop_rad2:
+		mov 	ebx, dword[i]
+		sub 	ebx, 1
+		shl 	ebx, 2
+		mov 	eax, dword[bucket + ebx]
+		add 	ebx, 1
+		add 	dword[bucket + ebx], eax
+		inc 	dword[i]
+		loop 	loop_rad2
+		pop 	ecx
+		
+	; 3ª loop for
+		mov 	dword[i], ecx
+		sub 	dword[i], 1
+		mov 	edi, dword[b]
+	loop_rad3:
+		cmp 	dword[i], 0
+		jnae 	loop_rad4
+		
+		mov 	ebx, dword[i]
+		shl 	ebx, 2
+		mov 	eax, dword[esi + ebx]
+		div 	dword[exp]
+		xor 	edx, edx
+		mov 	ebx, 10
+		div 	ebx
+		mov 	ebx, edx
+		shl 	ebx, 2
+		sub		dword[bucket + ebx], 1
+		mov 	ebx, dword[bucket + ebx]
+		shl 	ebx, 2
+		push 	ebx
+		mov 	ebx, dword[i]
+		shl 	ebx, 2
+		mov 	eax, dword[esi + ebx]
+		pop 	ebx
+		mov 	dword[edi + ebx], eax
+		
+		dec 	dword[i]
+		jmp 	loop_rad3
+		
+	; 4ª loop for
+		mov 	dword[i], 0
+		push 	ecx
+	loop_rad4:
+		mov 	ebx, dword[i]
+		shl 	ebx, 2
+		mov 	eax, dword[edi + ebx]
+		mov 	dword[esi + ebx], eax
+		inc 	dword[i]
+		loop 	loop_rad4
+		pop 	ecx
+	
+	; Retorno ao ínicio do while externo
+	return_while_rad1:
+		xor 	edx, edx
+		mov 	eax, dword[exp]
+		mov 	ebx, 10
+		mul 	ebx
+		mov 	dword[exp], eax
+		jmp 	loop_while_rad1
+		
+ReturnRadix:
+	mov 	ebx, b
+	call 	Free
 	
 	popad                                  ; Restaure todos os registradores da pilha
 ret                                        ; Retorne para a chamada da instrução CALL
