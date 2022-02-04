@@ -15,10 +15,11 @@
 
 %INCLUDE "Library/Sort/vars.asm"
 
-b 		dd 0x00000000    ; Ponteiro para vetor
+b 		dd b1     ; Ponteiro para vetor
 major 	dd 0
 exp 	dd 1
 bucket 	times 10 dd 0
+b1 		times 15 dd 0
 
 ; --------------------------------------------------------------------------------------------------------------------------
 ; ARGUMENTOS DA ROTINA RADIXSORT -------------------------------------------------------------------------------------------
@@ -30,16 +31,17 @@ bucket 	times 10 dd 0
 RadixSort:                                 ; Label que será chamada por instrução CALL
 	pushad                                 ; Armazene todos os registradores na pilha
 	
+	; Conferido
 	mov 	dword[i], 0
 	mov 	eax, dword[esi + 0]
 	mov 	dword[major], eax
 	mov 	dword[exp], 1
 	
-	mov 	ebx, 4
-	call 	Calloc
-	mov 	dword[b], eax
+	;mov 	ebx, 4
+	;call 	Calloc
+	;mov 	dword[b], eax
 	
-	; Primeiro FOR
+	; Primeiro FOR (Conferido)
 	push 	ecx
 	loop_for_rad1:
 		mov 	ebx, dword[i]
@@ -53,101 +55,131 @@ RadixSort:                                 ; Label que será chamada por instru�
 		loop 	loop_for_rad1
 	pop 	ecx
 	
-	; Loop while principal externo
+	; Loop while principal externo (Conferido)
 	loop_while_rad1:
 		xor 	edx, edx
 		mov 	eax, dword[major]
 		mov 	ebx, dword[exp]
 		div 	ebx
 		cmp 	eax, 0
-		jbe 	ReturnRadix
-		
-	; Inicializa vetor bucket (talvez apague)
+		jna 	ReturnRadix
+	
+	; Inicializa vetor bucket (Conferido)
+		mov 	edi, bucket
 		push 	ecx
+		push 	edi
 		mov 	ecx, 10
-		xor 	ebx, ebx
-	Init_Bucket:
-		mov 	dword[bucket + ebx], 0
-		inc 	ebx
-		loop 	Init_Bucket
+		mov 	eax, 0
+		rep 	stosd
+		pop 	edi
 		pop 	ecx
 		
-	; 1ª loop for
+	; 1ª loop for (Conferido)
+	;for(i = 0; i < size; i++)               ; Confere
+;			bucket[(vector[i] / exp) % 10]++;   ; Confere
 		mov 	dword[i], 0
-		push 	ecx
+		;push 	ecx
 	loop_rad1:
+		cmp 	dword[i], ecx
+		jnb 	init_loop2
+		xor 	edx, edx
 		mov 	ebx, dword[i]
 		shl 	ebx, 2
 		mov 	eax, dword[esi + ebx]
-		div 	dword[exp]
+		mov 	ebx, dword[exp]
+		div 	ebx
 		xor 	edx, edx
 		mov 	ebx, 10
 		div 	ebx
 		mov 	ebx, edx
 		shl 	ebx, 2
-		inc 	dword[bucket + ebx]
+		inc 	dword[edi + ebx]
 		inc 	dword[i]
-		loop 	loop_rad1
-		pop 	ecx
+		jmp 	loop_rad1
+		;loop 	loop_rad1
+		;pop 	ecx
 		
-	; 2ª loop for
+	; 2ª loop for (Conferido)
+	;		for(i = 1; i < 10; i++)           ; Confere
+;			bucket[i] += bucket[i - 1];   ; Confere
+	init_loop2:
 		mov 	dword[i], 1
-		push 	ecx
-		mov 	ecx, 10
+		;push 	ecx
+		;mov 	ecx, 10
 	loop_rad2:
+		cmp 	dword[i], 10
+		jnb  	init_loop3
 		mov 	ebx, dword[i]
+		push 	ebx
 		sub 	ebx, 1
 		shl 	ebx, 2
-		mov 	eax, dword[bucket + ebx]
-		add 	ebx, 1
-		add 	dword[bucket + ebx], eax
+		mov 	eax, dword[edi + ebx]
+		;add 	ebx, 4
+		pop 	ebx
+		shl 	ebx, 2
+		add 	dword[edi + ebx], eax
 		inc 	dword[i]
-		loop 	loop_rad2
-		pop 	ecx
+		;loop 	loop_rad2
+		jmp 	loop_rad2
+		;pop 	ecx
 		
-	; 3ª loop for
+	init_loop3:
+	; 3ª loop for (Conferido)
+	;		for(i = size - 1; i >= 0; i--)                        ; Confere
+;			b[--bucket[(vector[i] / exp) % 10]] = vector[i];  ; Confere
 		mov 	dword[i], ecx
 		sub 	dword[i], 1
-		mov 	edi, dword[b]
 	loop_rad3:
-		cmp 	dword[i], 0
-		jnae 	loop_rad4
+		cmp 	dword[i], 0xFFFFFFFF
+		je	 	last_loop
 		
+		;b[--bucket[(vector[i] / exp) % 10]] = vector[i];
+		mov 	edi, bucket
+		xor 	edx, edx
 		mov 	ebx, dword[i]
 		shl 	ebx, 2
 		mov 	eax, dword[esi + ebx]
-		div 	dword[exp]
+		mov 	ebx, dword[exp]
+		div 	ebx
 		xor 	edx, edx
 		mov 	ebx, 10
 		div 	ebx
 		mov 	ebx, edx
 		shl 	ebx, 2
-		sub		dword[bucket + ebx], 1
-		mov 	ebx, dword[bucket + ebx]
+		sub		dword[edi + ebx], 1
+		mov 	ebx, dword[edi + ebx]
 		shl 	ebx, 2
 		push 	ebx
 		mov 	ebx, dword[i]
 		shl 	ebx, 2
 		mov 	eax, dword[esi + ebx]
 		pop 	ebx
-		mov 	dword[edi + ebx], eax
+		mov 	edi, dword[b]
+		mov 	dword[es:edi + ebx], eax
 		
 		dec 	dword[i]
 		jmp 	loop_rad3
 		
-	; 4ª loop for
+	; 4ª loop for (Conferido)
+	;		for(i = 0; i < size; i++)  ; Confere
+;			vector[i] = b[i];      ; Confere
+	last_loop:
 		mov 	dword[i], 0
-		push 	ecx
+		;push 	ecx
 	loop_rad4:
+		cmp 	dword[i], ecx
+		jnb 	return_while_rad1
 		mov 	ebx, dword[i]
 		shl 	ebx, 2
-		mov 	eax, dword[edi + ebx]
+		mov 	edi, dword[b]
+		mov 	eax, dword[es:edi + ebx]
 		mov 	dword[esi + ebx], eax
 		inc 	dword[i]
-		loop 	loop_rad4
-		pop 	ecx
+		;loop 	loop_rad4
+		jmp 	loop_rad4
+		;pop 	ecx
 	
-	; Retorno ao ínicio do while externo
+	; Retorno ao ínicio do while externo (Conferido)
 	return_while_rad1:
 		xor 	edx, edx
 		mov 	eax, dword[exp]
@@ -157,8 +189,8 @@ RadixSort:                                 ; Label que será chamada por instru�
 		jmp 	loop_while_rad1
 		
 ReturnRadix:
-	mov 	ebx, b
-	call 	Free
+	;mov 	ebx, b
+	;call 	Free
 	
 	popad                                  ; Restaure todos os registradores da pilha
 ret                                        ; Retorne para a chamada da instrução CALL
@@ -166,33 +198,33 @@ ret                                        ; Retorne para a chamada da instruç�
 
 
 ;void RadixSort(int vector[], int size){
-;	int i;
-;	int *b; 
-;	int major = vector[0];
-;	int exp = 1;
+;	int i;                          ; Confere
+;	int *b;                         ; Confere
+;	int major = vector[0];          ; Confere
+;	int exp = 1;                    ; Confere
 ;	
-;	b = (int *) calloc(size, sizeof(int));
+;	b = (int *) calloc(size, sizeof(int));   ; Confere
 ;	
-;	for(i = 0; i < size; i++)
-;		if(vector[i] > major)
-;			major = vector[i];
+;	for(i = 0; i < size; i++)    ; Confere
+;		if(vector[i] > major)    ; Confere
+;			major = vector[i];   ; Confere
 ;	
-;	while((major / exp) > 0){
-;		int bucket[10] = { 0 };
+;	while((major / exp) > 0){    ; Confere
+;		int bucket[10] = { 0 };  ; Confere
 ;		
-;		for(i = 0; i < size; i++)
-;			bucket[(vector[i] / exp) % 10]++;
+;		for(i = 0; i < size; i++)               ; Confere
+;			bucket[(vector[i] / exp) % 10]++;   ; Confere
 ;			
-;		for(i = 1; i < 10; i++)
-;			bucket[i] += bucket[i - 1];
+;		for(i = 1; i < 10; i++)           ; Confere
+;			bucket[i] += bucket[i - 1];   ; Confere
 ;			
-;		for(i = size - 1; i >= 0; i--)
-;			b[--bucket[(vector[i] / exp) % 10]] = vector[i];
+;		for(i = size - 1; i >= 0; i--)                        ; Confere
+;			b[--bucket[(vector[i] / exp) % 10]] = vector[i];  ; Confere
 ;			
-;		for(i = 0; i < size; i++)
-;			vector[i] = b[i];
+;		for(i = 0; i < size; i++)  ; Confere
+;			vector[i] = b[i];      ; Confere
 ;		
-;		exp *= 10;
+;		exp *= 10;                 ; Confere
 ;	}
 ;	
 ;	free(b);
