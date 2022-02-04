@@ -133,7 +133,7 @@ RadixSort:                                 ; Label que será chamada por instru�
 		div 	ebx                        ; Divida o resultado de EAX por 10
 		mov 	ebx, edx                   ; EBX = Resto da divisão (em EDX)
 		shl 	ebx, 2                     ; Este resto será um índice em Asm, então x 4
-		sub		dword[edi + ebx], 1        ; Equivalente a --bucket[EBX], subtraíndo o valor - 1
+		sub	dword[edi + ebx], 1        ; Equivalente a --bucket[EBX], subtraíndo o valor - 1
 		mov 	ebx, dword[edi + ebx]      ; EBX = Novo valor subtraído de bucket[EBX]
 		shl 	ebx, 2                     ; x 4 como sempre pois é um índice para b[]
 		push 	ebx                        ; Salve este índice na pilha
